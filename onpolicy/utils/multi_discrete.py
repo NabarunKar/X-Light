@@ -1,4 +1,8 @@
-import gym
+# Try to import from gymnasium first, fall back to gym if not available
+try:
+    import gymnasium as gym
+except ImportError:
+    import gym
 import numpy as np
 
 # An old version of OpenAI Gym's multi_discrete.py. (Was getting affected by Gym updates)

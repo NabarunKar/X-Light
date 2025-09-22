@@ -151,12 +151,31 @@ class SUMORunner(SUMOBaseRunner):
     
     def get_ava_actions(self, ava):
         available_actions = np.ones((self.all_args.n_rollout_threads, self.all_args.num_agents, self.all_args.num_actions))
-        if len(ava.shape) == 2: 
+        
+        # Handle the different structures that ava might have
+        if isinstance(ava, list):
+            # If ava is already a list (not a numpy array)
+            for j in range(self.all_args.n_rollout_threads):
+                for i in range(min(self.all_args.num_agents, len(ava[j]) if j < len(ava) else 0)):
+                    # Skip None values or empty lists
+                    if ava[j][i] is None or len(ava[j][i]) == 0:
+                        continue
+                    
+                    # Convert to list if it's a numpy array
+                    indices = ava[j][i] if isinstance(ava[j][i], list) else ava[j][i].tolist()
+                    
+                    # Set unavailable actions to 0
+                    for idx in indices:
+                        if idx < self.all_args.num_actions:
+                            available_actions[j, i, idx] = 0
+        elif len(ava.shape) == 2: 
+            # Original case: shape is (n_rollout_threads, num_agents)
             for i in range(self.all_args.num_agents):
                 for j in range(self.all_args.n_rollout_threads):
                     if ava[j][i] != None:
                         available_actions[j, i, ava[j][i]] = 0
         elif ava is not None and ava.shape[-1] != 0:
+            # Original case: more complex shape
             for i in range(self.all_args.n_rollout_threads):
                 for j in range(self.all_args.num_agents):
                     available_actions[i, j, ava[i][j][0]] = 0

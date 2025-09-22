@@ -70,7 +70,10 @@ class SUMOEnv(object):
 
 
     def get_unava_phase_index(self):
-        return np.array(self.unava_phase_index)
+        # The issue is that self.unava_phase_index contains lists of different shapes
+        # Instead of directly converting to numpy array, return it as a list of arrays
+        # This prevents the error when elements have different shapes
+        return self.unava_phase_index
     
     def set_seed(self, seed):
         random.seed(seed)

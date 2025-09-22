@@ -282,8 +282,17 @@ class Intersection:
         logic = []
         unava_index = []
         right_index = []
+        
+        # Fix the problematic concatenation by using a flat list instead
+        flat_phase_indices = []
+        for phase_list in self.phase_index:
+            if isinstance(phase_list, list):
+                flat_phase_indices.extend(phase_list)
+            else:
+                flat_phase_indices.append(phase_list)
+        
         for i in range(len(self.lans_link)):
-            if i not in np.concatenate(np.array(self.phase_index)):
+            if i not in flat_phase_indices:
                 right_index.append(i)
         A = self.phase_index[3] + self.phase_index[7]
         B = self.phase_index[6] + self.phase_index[7]

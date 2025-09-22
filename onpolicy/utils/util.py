@@ -4,7 +4,10 @@ import torch
 
 def check(input):
     if type(input) == np.ndarray:
+        if input.size == 0:  # Handle empty arrays
+            return torch.zeros(0)
         return torch.from_numpy(input)
+    return input
         
 def get_gard_norm(it):
     sum_grad = 0

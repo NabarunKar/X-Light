@@ -307,14 +307,15 @@ class SubprocVecEnv(ShareVecEnv):
             return np.stack(obs)
 
     def get_unava_phase_index(self):
+        """Get unava_phase_index from subprocesses and send them as lists instead of trying to 
+        combine them into arrays with potentially incompatible shapes."""
+        self._warn_get_item('unava_phase_index')
         for remote in self.remotes:
             remote.send(('get_unava_phase_index', None))
+        
+        # Just receive the raw lists without trying to convert to numpy array
         ava = [remote.recv() for remote in self.remotes]
-        if self.cotrain:
-            new_ava = [np.squeeze(ava[i]) if ava[i].size != 0 else np.squeeze(np.array([[None] for _ in range(ava[i].shape[0])])) for i in range(len(ava))]
-            return np.expand_dims(np.concatenate(new_ava), axis = 0)
-        else:
-            return np.stack(ava)
+        return ava
 
     def reset_task(self):
         for remote in self.remotes:
